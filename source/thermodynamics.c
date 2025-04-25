@@ -3051,9 +3051,10 @@ int thermodynamics_reionization_get_tau(
   /** Define local variables */
   /* running index inside thermodynamics table */
   int index_z,index_reio_start=0;
-  double x_e_min;
+  double x_e_min, z_diff_min;
 
   x_e_min = _HUGE_;
+  z_diff_min = _HUGE_;
 
   /**
    * We are searching now for the start of reionization. This will be
@@ -3072,12 +3073,13 @@ int thermodynamics_reionization_get_tau(
    * index_reio_start.
    */
 
-  for (index_z=0; index_z<pth->tt_size-1; index_z++) {
-    if (pth->thermodynamics_table[index_z*pth->th_size+pth->index_th_xe] < x_e_min) {
-      x_e_min = pth->thermodynamics_table[index_z*pth->th_size+pth->index_th_xe];
-      index_reio_start = index_z;
-    }
-  }
+   double fixed_z_start = 200.0; // Set your fixed redshift value here
+   for (index_z=0; index_z<pth->tt_size-1; index_z++) {
+       if (fabs(pth->z_table[index_z] - fixed_z_start) < z_diff_min) {
+           z_diff_min = fabs(pth->z_table[index_z] - fixed_z_start);
+           index_reio_start = index_z;
+       }
+   }
 
   class_test(index_reio_start == pth->tt_size,
              pth->error_message,
